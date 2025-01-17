@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tracker/add_expense/add_expense.dart';
 import 'package:tracker/home/dashboard.dart';
 
 class MainView extends StatefulWidget {
@@ -11,7 +12,7 @@ class MainView extends StatefulWidget {
 class _MainViewState extends State<MainView>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
+  int _selectedIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -24,15 +25,33 @@ class _MainViewState extends State<MainView>
     super.dispose();
   }
 
+  void _onItemTapped(int index) {
+  setState(() {
+    _selectedIndex = index;
+  });
+}
+
   @override
   Widget build(BuildContext context) {
 
+   Widget currentView;
+    switch (_selectedIndex) {
+    case 0:
+      currentView = const HomeView();
+      break;
+    case 1:
+      currentView = const AddExpensesView(); // This links to your add expense view
+      break;
+    // Add other cases for remaining tabs
+    default:
+      currentView = const HomeView();
+  }
+
    PageStorageBucket bucket = PageStorageBucket();
-   Widget currentView = const HomeView();
    return Scaffold(
     
     backgroundColor: const Color.fromARGB(255, 41, 41, 41),
-    body: PageStorage(bucket: bucket, child: currentView),
+    body: currentView,
     bottomNavigationBar: Container(
       margin: EdgeInsets.all(10), // Add margin to create space from edges
       decoration: BoxDecoration(
@@ -48,6 +67,8 @@ class _MainViewState extends State<MainView>
       child: ClipRRect( // Wrap with ClipRRect to apply rounded corners to the navigation bar
         borderRadius: BorderRadius.circular(25),
         child: BottomNavigationBar(
+          currentIndex: _selectedIndex,  // Add this line
+          onTap: _onItemTapped,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.black,

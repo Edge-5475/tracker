@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tracker/main_view/main_view.dart';
+import 'package:tracker/add_expense/add_expense.dart'; 
 
 void main() {
   runApp(const MyApp());
