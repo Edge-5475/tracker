@@ -1,17 +1,304 @@
+// import 'package:flutter/material.dart';
+
+
+// class AddExpensesView extends StatelessWidget {
+//   const AddExpensesView({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Add Expense'),
+//       ),
+//       body: const Center(
+//         child: Text('Add Expense Form Will Go Here'),
+//       ),
+//     );
+//   }
+// }
+
 import 'package:flutter/material.dart';
 
-
-class AddExpensesView extends StatelessWidget {
+class AddExpensesView extends StatefulWidget {
   const AddExpensesView({super.key});
+
+  @override
+  State<AddExpensesView> createState() => _AddExpensesViewState();
+}
+
+class _AddExpensesViewState extends State<AddExpensesView> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  String _selectedCategory = 'Food';
+  DateTime _selectedDate = DateTime.now();
+
+  final List<String> _categories = [
+    'Food',
+    'Transportation',
+    'Shopping',
+    'Entertainment',
+    'Bills',
+    'Healthcare',
+    'Other'
+  ];
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2025),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.dark(
+              primary: Colors.blue.shade300,
+              onPrimary: Colors.white,
+              surface: const Color.fromARGB(255, 41, 41, 41),
+              onSurface: Colors.white,
+            ),
+            dialogBackgroundColor: const Color.fromARGB(255, 41, 41, 41),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Expense'),
+      backgroundColor: const Color.fromARGB(255, 41, 41, 41),
+      appBar: PreferredSize(
+  preferredSize: const Size.fromHeight(120), // Increased height
+  child: SafeArea(
+    child: AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: true,
+      title: Container(
+        margin: const EdgeInsets.only(top: 10), // Added margin
+        child: Text(
+          'Add Expense',
+          style: TextStyle(
+            fontSize: 50,
+            fontWeight: FontWeight.bold,
+            color: Colors.blue.shade300,
+            shadows: [
+              Shadow(
+                color: Colors.blue.shade300,
+                blurRadius: 10,
+              ),
+            ],
+          ),
+        ),
       ),
-      body: const Center(
-        child: Text('Add Expense Form Will Go Here'),
+    ),
+  ),
+),
+        body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20, right: 20, top: 90),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Amount Input
+                TextFormField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
+                    labelStyle: TextStyle(color: Colors.blue.shade300),
+                    prefixIcon: Icon(Icons.attach_money, color: Colors.blue.shade300),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.blue.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.red.shade400),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    filled: true,
+                    fillColor: Colors.black12,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Description Input
+                TextFormField(
+                  controller: _descriptionController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                    labelStyle: TextStyle(color: Colors.blue.shade300),
+                    prefixIcon: Icon(Icons.description, color: Colors.blue.shade300),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.blue.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.red.shade400),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    filled: true,
+                    fillColor: Colors.black12,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Category Dropdown
+                DropdownButtonFormField<String>(
+                  value: _selectedCategory,
+                  dropdownColor: Colors.black,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Category',
+                    labelStyle: TextStyle(color: Colors.blue.shade300),
+                    prefixIcon: Icon(Icons.category, color: Colors.blue.shade300),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.blue.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                      borderSide: BorderSide(color: Colors.red.shade400),
+                    ),
+                    filled: true,
+                    fillColor: Colors.black12,
+                  ),
+                  items: _categories.map((String category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category, style: const TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedCategory = newValue;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // Date Picker
+                InkWell(
+                  onTap: () => _selectDate(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: Colors.blue.shade300),
+                      color: Colors.black12,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today, color: Colors.blue.shade300),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Date: ${_selectedDate.toString().split(' ')[0]}',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // Submit Button
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // TODO: Implement save functionality
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: const Text('Expense Added Successfully!'),
+                          backgroundColor: Colors.blue.shade300,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      );
+                      
+                      // Clear the form
+                      _amountController.clear();
+                      _descriptionController.clear();
+                      setState(() {
+                        _selectedCategory = 'Food';
+                        _selectedDate = DateTime.now();
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue.shade300,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                  ).copyWith(
+                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                      (states) {
+                        if (states.contains(MaterialState.pressed)) {
+                          return Colors.red.shade400;
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  child: const Text(
+                    'Save Expense',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
