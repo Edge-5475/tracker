@@ -43,6 +43,7 @@ class _AddExpensesViewState extends State<AddExpensesView> {
     'Other'
   ];
 
+<<<<<<< Updated upstream
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -69,7 +70,42 @@ class _AddExpensesViewState extends State<AddExpensesView> {
         _selectedDate = picked;
       });
     }
+=======
+ Future<void> _selectDate(BuildContext context) async {
+  // First ensure _selectedDate is within valid range
+  DateTime now = DateTime.now();
+  if (_selectedDate.isAfter(DateTime(2025, 12, 31))) {
+    _selectedDate = DateTime(2025, 12, 31);
+>>>>>>> Stashed changes
   }
+
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: _selectedDate,
+    firstDate: DateTime(2020),
+    lastDate: DateTime(2025, 12, 31),
+    builder: (context, child) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.dark(
+            primary: Colors.blue.shade300,
+            onPrimary: Colors.white,
+            surface: const Color.fromARGB(255, 41, 41, 41),
+            onSurface: Colors.white,
+          ),
+          dialogBackgroundColor: const Color.fromARGB(255, 41, 41, 41),
+        ),
+        child: child!,
+      );
+    },
+  );
+  
+  if (picked != null) {
+    setState(() {
+      _selectedDate = picked;
+    });
+  }
+}
 
   @override
   void dispose() {
