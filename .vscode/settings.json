@@ -1,4 +1,7 @@
 {
     "cmake.sourceDirectory": "C:/Users/ASUS/Desktop/Capstone project/tracker/windows",
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "cSpell.words": [
+        "sqflite"
+    ]
 }

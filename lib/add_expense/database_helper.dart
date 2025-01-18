@@ -15,6 +15,10 @@ class DatabaseHelper {
   static const columnCategory = 'category';
   static const columnDate = 'date';
 
+  Future<List<Map<String, dynamic>>> getAllExpenses() async {
+    final db = await database;
+    return await db.query('expenses');
+  }
   // Singleton class
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
