@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tracker/add_expense/add_expense.dart';
 import 'package:tracker/home/dashboard.dart';
-import 'package:tracker/add_expense/add_expenses_view.dart';
+
 
 
 class MainView extends StatefulWidget {
