@@ -1,30 +1,46 @@
+// Add these imports at the top
 import 'package:flutter/material.dart';
-import 'database_helper.dart';
-import 'expense_model.dart';
+import '../add_expense/database_helper.dart';
 
-// ... (keep your existing imports)
+class AddExpenseView extends StatefulWidget {
+  const AddExpenseView({Key? key}) : super(key: key);
 
-class _AddExpensesViewState extends State<AddExpensesView> {
-  // ... (keep your existing variables and methods)
+  @override
+  _AddExpenseViewState createState() => _AddExpenseViewState();
+}
 
-  // Add this method to save expense to database
+class _AddExpenseViewState extends State<AddExpenseView> {
+  final _formKey = GlobalKey<FormState>();
+  final _amountController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  String _selectedCategory = 'Food';
+  DateTime _selectedDate = DateTime.now();
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
   Future<void> _saveExpense() async {
     if (_formKey.currentState!.validate()) {
       try {
-        final expense = Expense(
-          amount: double.parse(_amountController.text),
-          description: _descriptionController.text,
-          category: _selectedCategory,
-          date: _selectedDate.toIso8601String(),
-        );
+        final row = {
+          DatabaseHelper.columnAmount: double.parse(_amountController.text),
+          DatabaseHelper.columnDescription: _descriptionController.text,
+          DatabaseHelper.columnCategory: _selectedCategory,
+          DatabaseHelper.columnDate: _selectedDate.toIso8601String(),
+        };
 
-        await DatabaseHelper.instance.insert(expense.toMap());
+        await dbHelper.insert(row);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Expense Added Successfully!'),
-              backgroundColor: Colors.blue.shade300,
+              content: const Text('Expense saved successfully!'),
+              backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -33,7 +49,6 @@ class _AddExpensesViewState extends State<AddExpensesView> {
           );
         }
 
-        // Clear the form
         _amountController.clear();
         _descriptionController.clear();
         setState(() {
@@ -52,8 +67,4 @@ class _AddExpensesViewState extends State<AddExpensesView> {
       }
     }
   }
-
-  // Update your build method's ElevatedButton onPressed to use _saveExpense
-  // Replace the existing onPressed with this:
-  onPressed: _saveExpense,
 }
