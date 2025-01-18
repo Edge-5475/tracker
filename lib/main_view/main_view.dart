@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tracker/add_expense/add_expense.dart';
 import 'package:tracker/home/dashboard.dart';
+import 'package:tracker/add_expense/add_expenses_view.dart';
+
 
 class MainView extends StatefulWidget {
   const MainView({super.key});
@@ -47,7 +49,7 @@ class _MainViewState extends State<MainView>
       currentView = const HomeView();
   }
 
-   PageStorageBucket bucket = PageStorageBucket();
+
    return Scaffold(
     
     backgroundColor: const Color.fromARGB(255, 41, 41, 41),
