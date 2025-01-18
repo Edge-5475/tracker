@@ -1,23 +1,5 @@
-// import 'package:flutter/material.dart';
-
-
-// class AddExpensesView extends StatelessWidget {
-//   const AddExpensesView({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Add Expense'),
-//       ),
-//       body: const Center(
-//         child: Text('Add Expense Form Will Go Here'),
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
+import 'package:tracker/database/database_helper.dart';
 
 class AddExpensesView extends StatefulWidget {
   const AddExpensesView({super.key});
@@ -49,7 +31,7 @@ class _AddExpensesViewState extends State<AddExpensesView> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime(2025),
+      lastDate: DateTime(2025, 12, 31), // Changed to end of 2025
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -113,39 +95,73 @@ class _AddExpensesViewState extends State<AddExpensesView> {
     _descriptionController.dispose();
     super.dispose();
   }
+  
+  Future<void> _saveExpense() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        final expense = {
+          'amount': double.parse(_amountController.text),
+          'description': _descriptionController.text,
+          'category': _selectedCategory,
+          'date': _selectedDate.toIso8601String(),
+        };
+
+        await DatabaseHelper.instance.insertExpense(expense);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Expense saved successfully!')),
+          );
+          // Clear the form
+          _amountController.clear();
+          _descriptionController.clear();
+          setState(() {
+            _selectedCategory = 'Food';
+            _selectedDate = DateTime.now();
+          });
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving expense: $e')),
+          );
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 41, 41, 41),
       appBar: PreferredSize(
-  preferredSize: const Size.fromHeight(120), // Increased height
-  child: SafeArea(
-    child: AppBar(
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      centerTitle: true,
-      title: Container(
-        margin: const EdgeInsets.only(top: 10), // Added margin
-        child: Text(
-          'Add Expense',
-          style: TextStyle(
-            fontSize: 50,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue.shade300,
-            shadows: [
-              Shadow(
-                color: Colors.blue.shade300,
-                blurRadius: 10,
+        preferredSize: const Size.fromHeight(120),
+        child: SafeArea(
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: Container(
+              margin: const EdgeInsets.only(top: 10),
+              child: Text(
+                'Add Expense',
+                style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade300,
+                  shadows: [
+                    Shadow(
+                      color: Colors.blue.shade300,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-),
-        body: SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.only(left: 20, right: 20, top: 90),
           child: Form(
@@ -153,7 +169,6 @@ class _AddExpensesViewState extends State<AddExpensesView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Amount Input
                 TextFormField(
                   controller: _amountController,
                   keyboardType: TextInputType.number,
@@ -188,8 +203,6 @@ class _AddExpensesViewState extends State<AddExpensesView> {
                   },
                 ),
                 const SizedBox(height: 20),
-
-                // Description Input
                 TextFormField(
                   controller: _descriptionController,
                   style: const TextStyle(color: Colors.white),
@@ -220,8 +233,6 @@ class _AddExpensesViewState extends State<AddExpensesView> {
                   },
                 ),
                 const SizedBox(height: 20),
-
-                // Category Dropdown
                 DropdownButtonFormField<String>(
                   value: _selectedCategory,
                   dropdownColor: Colors.black,
@@ -256,8 +267,6 @@ class _AddExpensesViewState extends State<AddExpensesView> {
                   },
                 ),
                 const SizedBox(height: 20),
-
-                // Date Picker
                 InkWell(
                   onTap: () => _selectDate(context),
                   child: Container(
@@ -280,32 +289,8 @@ class _AddExpensesViewState extends State<AddExpensesView> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
-                // Submit Button
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // TODO: Implement save functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('Expense Added Successfully!'),
-                          backgroundColor: Colors.blue.shade300,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      );
-                      
-                      // Clear the form
-                      _amountController.clear();
-                      _descriptionController.clear();
-                      setState(() {
-                        _selectedCategory = 'Food';
-                        _selectedDate = DateTime.now();
-                      });
-                    }
-                  },
+                  onPressed: _saveExpense,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue.shade300,
                     padding: const EdgeInsets.symmetric(vertical: 15),
@@ -314,9 +299,9 @@ class _AddExpensesViewState extends State<AddExpensesView> {
                     ),
                     elevation: 5,
                   ).copyWith(
-                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                    overlayColor: WidgetStateProperty.resolveWith<Color?>(
                       (states) {
-                        if (states.contains(MaterialState.pressed)) {
+                        if (states.contains(WidgetState.pressed)) {
                           return Colors.red.shade400;
                         }
                         return null;
