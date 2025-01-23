@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tracker/add_expense/add_expense.dart';
 import 'package:tracker/home/dashboard.dart';
+import 'package:tracker/scan/scan_view.dart';
+import 'package:tracker/report/report.dart';
 
 
 
@@ -27,7 +29,7 @@ class _MainViewState extends State<MainView>
     super.dispose();
   }
 
-  void _onItemTapped(int index) {
+void _onItemTapped(int index) {
   setState(() {
     _selectedIndex = index;
   });
@@ -36,21 +38,25 @@ class _MainViewState extends State<MainView>
   @override
   Widget build(BuildContext context) {
 
-   Widget currentView;
+    Widget currentView;
     switch (_selectedIndex) {
-    case 0:
-      currentView = const HomeView();
-      break;
-    case 1:
-      currentView = const AddExpensesView(); // This links to your add expense view
-      break;
-    // Add other cases for remaining tabs
-    default:
-      currentView = const HomeView();
+      case 0:
+        currentView = const HomeView();
+        break;
+      case 1:
+        currentView = const AddExpensesView();
+        break;
+      case 2:
+        currentView = const ScanView();  // Add this case
+        break;
+      case 3:
+        currentView = const ReportView(); // Add this case
+        break;
+      default:
+        currentView = const HomeView();
   }
 
-
-   return Scaffold(
+    return Scaffold(
     
     backgroundColor: const Color.fromARGB(255, 41, 41, 41),
     body: currentView,
@@ -157,21 +163,7 @@ class _MainViewState extends State<MainView>
               ),
               label: 'Reports',
             ),
-            BottomNavigationBarItem(
-              icon: Padding(
-                padding: EdgeInsets.symmetric(vertical: 5),
-                child: Icon(
-                  Icons.settings,
-                  shadows: [
-                    Shadow(
-                      color: Colors.blue.shade300,
-                      blurRadius: 20,
-                    ),
-                  ],
-                ),
-              ),
-              label: 'Settings',
-            ),
+            
           ],
         ),
       ),

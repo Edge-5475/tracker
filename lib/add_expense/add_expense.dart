@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tracker/database/database_helper.dart';
+import 'package:tracker/add_expense/database_helper.dart';
 
 class AddExpensesView extends StatefulWidget {
   const AddExpensesView({super.key});
@@ -77,41 +77,35 @@ Future<void> _saveExpense() async {
         'date': _selectedDate.toIso8601String(),
       };
       
-      print('Attempting to save expense: $expense'); // Debug print
-      
       final result = await DatabaseHelper.instance.insertExpense(expense);
       
-      print('Database insert result: $result'); // Debug print
-      
-      if (mounted) {
-        if (result > 0) { // Check if insert was successful
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Expense saved successfully!')),
-          );
-          // Clear the form
-          _amountController.clear();
-          _descriptionController.clear();
-          setState(() {
-            _selectedCategory = 'Food';
-            _selectedDate = DateTime.now();
-          });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to save expense')),
-          );
-        }
+      if (mounted && result > 0) {
+        // Clear form
+        _amountController.clear();
+        _descriptionController.clear();
+        setState(() {
+          _selectedCategory = 'Food';
+          _selectedDate = DateTime.now();
+        });
+
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Expense saved successfully!')),
+        );
+
+        // Navigate back and refresh previous screen
+        
       }
     } catch (e) {
-      print('Error saving expense: $e'); // Debug print
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error saving expense: $e')),
         );
       }
+      print('Error saving expense: $e');
     }
   }
 }
-
 
   @override
   Widget build(BuildContext context) {

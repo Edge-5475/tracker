@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:tracker/main_view/main_view.dart';
-import 'package:tracker/database/database_helper.dart';
+import 'package:tracker/add_expense/database_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await DatabaseHelper.instance.database;
-  runApp(const MyApp());
+  try {
+    // Initialize database
+    await DatabaseHelper.instance.database;
+    
+    runApp(const MyApp());
+  } catch (e) {
+    print('Error initializing app: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
