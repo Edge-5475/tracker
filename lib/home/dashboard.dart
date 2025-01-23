@@ -14,6 +14,35 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 41, 41, 41),
+      // Add AppBar with title
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120),
+        child: SafeArea(
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: Container(
+              margin: const EdgeInsets.only(top: 10),
+              child: Text(
+                'Dashboard',
+                style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade300,
+                  shadows: [
+                    Shadow(
+                      color: Colors.blue.shade300,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Body with FutureBuilder to display expenses
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: DatabaseHelper.instance.queryAllRows(),
         builder: (context, snapshot) {
@@ -26,8 +55,12 @@ class _HomeViewState extends State<HomeView> {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No expenses found', 
-              style: TextStyle(color: Colors.white)));
+            return const Center(
+              child: Text(
+                'No expenses found', 
+                style: TextStyle(color: Colors.white)
+              )
+            );
           }
 
           return ListView.builder(
@@ -38,11 +71,19 @@ class _HomeViewState extends State<HomeView> {
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 color: Colors.black,
                 child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blue.shade300,
-                    child: Text(
-                      expense.category[0],
-                      style: const TextStyle(color: Colors.white),
+                  leading: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade300.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(
+                        _getCategoryIcon(expense.category),
+                        color: Colors.blue.shade300,
+                      ),
                     ),
                   ),
                   title: Text(
@@ -68,5 +109,24 @@ class _HomeViewState extends State<HomeView> {
         },
       ),
     );
+  }
+
+  String _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return 'assets/icons/food.png';
+      case 'transportation':
+        return 'assets/icons/logistic.png';
+      case 'shopping':
+        return 'assets/icons/cart.png';
+      case 'entertainment':
+        return 'assets/icons/smartphone.png';
+      case 'bills':
+        return 'assets/icons/bill.png';
+      case 'healthcare':
+        return 'assets/icons/healthcare.png';
+      default:
+        return 'assets/icons/more.png';
+    }
   }
 }

@@ -1,86 +1,72 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 class DatabaseHelper {
-  static const _databaseName = "ExpenseTracker.db";
-  static const _databaseVersion = 1;
-
-  static const table = 'expenses';
-
-  static const columnId = 'id';
-  static const columnAmount = 'amount';
-  static const columnDescription = 'description';
-  static const columnCategory = 'category';
-  static const columnDate = 'date';
-
-  Future<List<Map<String, dynamic>>> getAllExpenses() async {
-    final db = await database;
-    return await db.query('expenses');
-  }
-  // Singleton class
-  DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
-
+  static final DatabaseHelper instance = DatabaseHelper._init();
   static Database? _database;
+
+  DatabaseHelper._init();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDatabase();
+    _database = await _initDB('expenses.db');
     return _database!;
   }
 
-  Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, _databaseName);
-    return await openDatabase(path,
-        version: _databaseVersion, onCreate: _onCreate);
-  }
+  Future<Database> _initDB(String filePath) async {
+  try {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
 
-  Future _onCreate(Database db, int version) async {
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _createDB,
+    );
+  } catch (e) {
+    print('Error initializing database: $e');
+    rethrow;
+  }
+}
+
+  Future<void> _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE $table (
-        $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-        $columnAmount REAL NOT NULL,
-        $columnDescription TEXT NOT NULL,
-        $columnCategory TEXT NOT NULL,
-        $columnDate TEXT NOT NULL
+      CREATE TABLE expenses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        amount REAL NOT NULL,
+        description TEXT NOT NULL,
+        category TEXT NOT NULL,
+        date TEXT NOT NULL
       )
     ''');
   }
 
-  // Insert an expense
-  Future<int> insert(Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    return await db.insert(table, row);
+  Future<int> insertExpense(Map<String, dynamic> expense) async {
+    final db = await database;
+    return await db.insert('expenses', expense);
   }
 
-  // Get all expenses
   Future<List<Map<String, dynamic>>> queryAllRows() async {
-    Database db = await instance.database;
-    return await db.query(table, orderBy: '$columnDate DESC');
+    final db = await database;
+    return await db.query('expenses', orderBy: 'date DESC');
   }
 
-  // Get expenses by category
   Future<List<Map<String, dynamic>>> queryByCategory(String category) async {
-    Database db = await instance.database;
-    return await db.query(table,
-        where: '$columnCategory = ?',
-        whereArgs: [category],
-        orderBy: '$columnDate DESC');
+    final db = await database;
+    return await db.query(
+      'expenses',
+      where: 'category = ?',
+      whereArgs: [category],
+      orderBy: 'date DESC'
+    );
   }
 
-  // Delete an expense
   Future<int> delete(int id) async {
-    Database db = await instance.database;
-    return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
-  }
-
-  // Update an expense
-  Future<int> update(Map<String, dynamic> row) async {
-    Database db = await instance.database;
-    int id = row[columnId];
-    return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    final db = await database;
+    return await db.delete(
+      'expenses',
+      where: 'id = ?',
+      whereArgs: [id]
+    );
   }
 }
